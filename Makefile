@@ -1,9 +1,15 @@
 # Support: PLATFORM_DESKTOP and PLATFORM_WEB
-APP_NAME=ENTER_HERE
-
-PLATFORM ?= PLATFORM_DESKTOP
-
+APP_NAME ?= ENTER_HERE
+PLATFORM ?= PLATFORM_WEB
 PLATFORM_OS ?= Linux
+
+BUILD_WEB_ASYNCIFY    ?= FALSE
+BUILD_WEB_SHELL       ?= minshell.html
+BUILD_WEB_HEAP_SIZE   ?= 128MB
+BUILD_WEB_STACK_SIZE  ?= 1MB
+BUILD_WEB_ASYNCIFY_STACK_SIZE ?= 1048576
+BUILD_WEB_RESOURCES   ?= FALSE
+BUILD_WEB_RESOURCES_PATH  ?= resources
 
 UNAMEOS = $(shell uname)
 
@@ -35,6 +41,23 @@ endif
 CC=gcc
 CFLAGS=-Wall -std=c99 -Werror -D_DEFAULT_SOURCE
 
+ifeq ($(PLATFORM),PLATFORM_WEB)
+	CC=emcc
+
+    LDFLAGS += -sUSE_GLFW=3 -sTOTAL_MEMORY=$(BUILD_WEB_HEAP_SIZE) -sSTACK_SIZE=$(BUILD_WEB_STACK_SIZE) -sFORCE_FILESYSTEM=1 -sMINIFY_HTML=0
+
+    ifeq ($(BUILD_WEB_ASYNCIFY),TRUE)
+        LDFLAGS += -sASYNCIFY -sASYNCIFY_STACK_SIZE=$(BUILD_WEB_ASYNCIFY_STACK_SIZE)
+    endif
+
+    ifeq ($(BUILD_WEB_RESOURCES),TRUE)
+        LDFLAGS += --preload-file $(BUILD_WEB_RESOURCES_PATH)
+    endif
+
+    LDFLAGS += --shell-file $(BUILD_WEB_SHELL)
+    EXT = .html
+endif
+
 ifeq ($(PLATFORM),PLATFORM_DESKTOP)
 	CFLAGS += -DPLATFORM_DESKTOP
 endif
@@ -42,12 +65,18 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 	CFLAGS += -DPLATFORM_WEB
 endif
 
-INC=-I/usr/local/include/ -I/src/ -I./libs/
+INC=-I/usr/local/include/ -I/src/ -I./libs/include/
 
-ifeq ($(PLATFORM_OS), OSX)
-	LIB=-L/usr/local/lib/ -lraylib -lm  -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL
+ifeq ($(PLATFORM),PLATFORM_DESKTOP)
+	ifeq ($(PLATFORM_OS), OSX)
+		LIB=-L/usr/local/lib/ -lraylib -lm -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL
+	else
+		# Linux here
+		LIB=-L/usr/local/lib/ -lraylib -lm
+	endif
 else
-	LIB=-L/usr/local/lib/ -lraylib -lm
+	# WEB here
+	LIB=-L./libs/ -lraylib -lm
 endif
 
 SRC=./src
@@ -68,7 +97,7 @@ bear_build:
 	bear -- make build
 
 build: $(OBJECTS)
-	$(CC) -o $(APP) $^ $(CFLAGS) $(INC) $(LIB)
+	$(CC) -o $(APP)$(EXT) $^ $(CFLAGS) $(INC) $(LIB)
 
 $(SRC)/%.o: $(SRC)/%.c
 	$(CC) $(CFLAGS) $(INC) -o $@ -c $< -g -MMD

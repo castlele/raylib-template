@@ -1,6 +1,9 @@
 #include <raylib.h>
 #include "screen.h"
-#include "utils.h"
+
+#if defined(PLATFORM_WEB)
+    #include <emscripten/emscripten.h>
+#endif
 
 #define DEFAULT_WIN_W 800
 #define DEFAULT_WIN_H 600
@@ -25,10 +28,11 @@ int main() {
 
     InitScreen(currentScreen);
 
+#if defined(PLATFORM_WEB)
+    emscripten_set_main_loop(UpdateDrawFrame, 60, 1);
+#else
     SetTargetFPS(60);
 
-#if defined(PLATFORM_WEB)
-#else
     while (!WindowShouldClose()) {
         UpdateDrawFrame();
     }
