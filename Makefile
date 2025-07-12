@@ -72,11 +72,13 @@ ifeq ($(PLATFORM),PLATFORM_DESKTOP)
 		LIB=-L/usr/local/lib/ -lraylib -lm -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL
 	else
 		# Linux here
-		LIB=-L/usr/local/lib/ -lraylib -lm
+		LIB=-L./libs/desktop/ -lraylib -lm
+		RAYLIB_PATH=./libs/desktop/libraylib.a
 	endif
 else
 	# WEB here
-	LIB=-L./libs/ -lraylib -lm
+	LIB=-L./libs/web/ -lraylib -lm
+	RAYLIB_PATH=./libs/web/libraylib.a
 endif
 
 SRC=./src
@@ -88,7 +90,7 @@ OBJECTS=$(FILES:.c=.o)
 
 APP=./build/$(APP_NAME)
 
-.PHONY: run build clean
+.PHONY: run build bear_build clean
 
 run: clean bear_build
 	$(APP)
@@ -96,8 +98,11 @@ run: clean bear_build
 bear_build:
 	bear -- make build
 
-build: $(OBJECTS)
+build: $(RAYLIB_PATH) $(OBJECTS)
 	$(CC) -o $(APP)$(EXT) $^ $(CFLAGS) $(INC) $(LIB)
+
+$(RAYLIB_PATH):
+	sh ./scripts/downloadraylib.sh
 
 $(SRC)/%.o: $(SRC)/%.c
 	$(CC) $(CFLAGS) $(INC) -o $@ -c $< -g -MMD
