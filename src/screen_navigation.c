@@ -54,7 +54,7 @@ BOOL IsInTransition() {
     return transition;
 }
 
-#pragma mark - Private
+// Private methods
 
 static void InitNavigation() {
     switch (_type) {

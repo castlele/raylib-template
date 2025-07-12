@@ -52,7 +52,7 @@ ScreenType MainNavigateToScreen() {
     return navigateTo;
 }
 
-#pragma mark Private methods
+// Private methods
 
 static void NavigateSettings() {
     navigateTo = SETTINGS;
