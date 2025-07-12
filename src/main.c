@@ -1,8 +1,8 @@
-#include <raylib.h>
 #include "screen.h"
+#include <raylib.h>
 
 #if defined(PLATFORM_WEB)
-    #include <emscripten/emscripten.h>
+#include <emscripten/emscripten.h>
 #endif
 
 #define DEFAULT_WIN_W 800
@@ -50,9 +50,7 @@ static void UpdateDrawFrame() {
     Draw();
 }
 
-static void Update() {
-    UpdateScreen(currentScreen);
-}
+static void Update() { UpdateScreen(currentScreen); }
 
 static void Draw() {
     ClearBackground(RAYWHITE);
@@ -64,27 +62,27 @@ static void Draw() {
 
 static void InitScreen(ScreenType screen) {
     switch (screen) {
-        case NONE:
-            break;
-        case MAIN:
-            InitMainScreen();
-            break;
-        case SETTINGS:
-            InitSettingsScreen();
-            break;
+    case NONE:
+        break;
+    case MAIN:
+        InitMainScreen();
+        break;
+    case SETTINGS:
+        InitSettingsScreen();
+        break;
     }
 }
 
 static void DeinitScreen(ScreenType screen) {
     switch (screen) {
-        case NONE:
-            break;
-        case MAIN:
-            DeinitMainScreen();
-            break;
-        case SETTINGS:
-            DeinitSettingsScreen();
-            break;
+    case NONE:
+        break;
+    case MAIN:
+        DeinitMainScreen();
+        break;
+    case SETTINGS:
+        DeinitSettingsScreen();
+        break;
     }
 }
 
@@ -95,51 +93,41 @@ static void UpdateScreen(ScreenType screen) {
     }
 
     switch (screen) {
-        case NONE:
-            break;
-        case MAIN:
-            UpdateMainScreen();
+    case NONE:
+        break;
+    case MAIN:
+        UpdateMainScreen();
 
-            if (IsMainFinished()) {
-                ScreenType to = MainNavigateToScreen();
+        if (IsMainFinished()) {
+            ScreenType to = MainNavigateToScreen();
 
-                NavigateToScreen(
-                    MAIN,
-                    to,
-                    FADEIN_FADEOUT,
-                    NavigationStarted,
-                    NavigationFinished
-                );
-            }
-            break;
-        case SETTINGS:
-            UpdateSettingsScreen();
+            NavigateToScreen(MAIN, to, FADEIN_FADEOUT, NavigationStarted,
+                             NavigationFinished);
+        }
+        break;
+    case SETTINGS:
+        UpdateSettingsScreen();
 
-            if (IsSettingsFinished()) {
-                ScreenType to = SettingsNavigateToScreen();
+        if (IsSettingsFinished()) {
+            ScreenType to = SettingsNavigateToScreen();
 
-                NavigateToScreen(
-                    SETTINGS,
-                    to,
-                    FADEIN_FADEOUT,
-                    NavigationStarted,
-                    NavigationFinished
-                );
-            }
-            break;
+            NavigateToScreen(SETTINGS, to, FADEIN_FADEOUT, NavigationStarted,
+                             NavigationFinished);
+        }
+        break;
     }
 }
 
 static void DrawScreen(ScreenType screen) {
     switch (screen) {
-        case NONE:
-            break;
-        case MAIN:
-            DrawMainScreen();
-            break;
-        case SETTINGS:
-            DrawSettingsScreen();
-            break;
+    case NONE:
+        break;
+    case MAIN:
+        DrawMainScreen();
+        break;
+    case SETTINGS:
+        DrawSettingsScreen();
+        break;
     }
 
     if (IsInTransition()) {
@@ -155,4 +143,3 @@ static void NavigationStarted(ScreenType from, ScreenType to) {
 static void NavigationFinished(ScreenType from, ScreenType to) {
     DeinitScreen(from);
 }
-
