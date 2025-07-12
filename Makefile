@@ -3,8 +3,15 @@ APP_NAME ?= ENTER_HERE
 PLATFORM ?= PLATFORM_DESKTOP
 PLATFORM_OS ?= Linux
 
+EMSDK_PATH         ?= ~/dev/open_source/emsdk
+EMSCRIPTEN_PATH    ?= $(EMSDK_PATH)/upstream/emscripten
+CLANG_PATH          = $(EMSDK_PATH)/upstream/bin
+PYTHON_PATH         = /usr/bin/python3
+NODE_PATH           = $(EMSDK_PATH)/node/12.9.1_64bit/bin
+PATH = $(shell printenv PATH):$(EMSDK_PATH):$(EMSCRIPTEN_PATH):$(CLANG_PATH):$(NODE_PATH):$(PYTHON_PATH)
+
 BUILD_WEB_ASYNCIFY    ?= FALSE
-BUILD_WEB_SHELL       ?= minshell.html
+BUILD_WEB_SHELL       ?= libs/minshell.html
 BUILD_WEB_HEAP_SIZE   ?= 128MB
 BUILD_WEB_STACK_SIZE  ?= 1MB
 BUILD_WEB_ASYNCIFY_STACK_SIZE ?= 1048576
@@ -39,22 +46,22 @@ ifeq ($(PLATFORM),PLATFORM_DESKTOP)
 endif
 
 CC=gcc
-CFLAGS=-Wall -std=c99 -Werror -D_DEFAULT_SOURCE
+CFLAGS=-Wall -std=c99 -D_DEFAULT_SOURCE
 
 ifeq ($(PLATFORM),PLATFORM_WEB)
 	CC=emcc
 
-    LDFLAGS += -sUSE_GLFW=3 -sTOTAL_MEMORY=$(BUILD_WEB_HEAP_SIZE) -sSTACK_SIZE=$(BUILD_WEB_STACK_SIZE) -sFORCE_FILESYSTEM=1 -sMINIFY_HTML=0
+    CFLAGS += -s USE_GLFW=3 -s TOTAL_MEMORY=$(BUILD_WEB_HEAP_SIZE) -s STACK_SIZE=$(BUILD_WEB_STACK_SIZE) -s FORCE_FILESYSTEM=1 -s MINIFY_HTML=0
 
     ifeq ($(BUILD_WEB_ASYNCIFY),TRUE)
-        LDFLAGS += -sASYNCIFY -sASYNCIFY_STACK_SIZE=$(BUILD_WEB_ASYNCIFY_STACK_SIZE)
+        CFLAGS += -s ASYNCIFY - sASYNCIFY_STACK_SIZE=$(BUILD_WEB_ASYNCIFY_STACK_SIZE)
     endif
 
     ifeq ($(BUILD_WEB_RESOURCES),TRUE)
-        LDFLAGS += --preload-file $(BUILD_WEB_RESOURCES_PATH)
+        CFLAGS += --preload-file $(BUILD_WEB_RESOURCES_PATH)
     endif
 
-    LDFLAGS += --shell-file $(BUILD_WEB_SHELL)
+    CFLAGS += --shell-file $(BUILD_WEB_SHELL)
     EXT = .html
 endif
 
@@ -102,6 +109,7 @@ build: $(RAYLIB_PATH) $(OBJECTS)
 	$(CC) -o $(APP)$(EXT) $^ $(CFLAGS) $(INC) $(LIB)
 
 $(RAYLIB_PATH):
+	export PLATFORM=$(PLATFORM)
 	sh ./scripts/downloadraylib.sh
 
 $(SRC)/%.o: $(SRC)/%.c
