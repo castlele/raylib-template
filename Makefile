@@ -10,13 +10,13 @@ PYTHON_PATH         = /usr/bin/python3
 NODE_PATH           = $(EMSDK_PATH)/node/12.9.1_64bit/bin
 PATH = $(shell printenv PATH):$(EMSDK_PATH):$(EMSCRIPTEN_PATH):$(CLANG_PATH):$(NODE_PATH):$(PYTHON_PATH)
 
-BUILD_WEB_ASYNCIFY    ?= FALSE
-BUILD_WEB_SHELL       ?= libs/minshell.html
-BUILD_WEB_HEAP_SIZE   ?= 128MB
-BUILD_WEB_STACK_SIZE  ?= 1MB
+BUILD_WEB_ASYNCIFY            ?= TRUE
+BUILD_WEB_SHELL               ?= libs/minshell.html
+BUILD_WEB_HEAP_SIZE           ?= 128MB
+BUILD_WEB_STACK_SIZE          ?= 1MB
 BUILD_WEB_ASYNCIFY_STACK_SIZE ?= 1048576
-BUILD_WEB_RESOURCES   ?= FALSE
-BUILD_WEB_RESOURCES_PATH  ?= resources
+BUILD_WEB_RESOURCES           ?= FALSE
+BUILD_WEB_RESOURCES_PATH      ?= resources
 
 UNAMEOS = $(shell uname)
 
@@ -54,7 +54,7 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
     CFLAGS += -s USE_GLFW=3 -s TOTAL_MEMORY=$(BUILD_WEB_HEAP_SIZE) -s STACK_SIZE=$(BUILD_WEB_STACK_SIZE) -s FORCE_FILESYSTEM=1 -s MINIFY_HTML=0
 
     ifeq ($(BUILD_WEB_ASYNCIFY),TRUE)
-        CFLAGS += -s ASYNCIFY - sASYNCIFY_STACK_SIZE=$(BUILD_WEB_ASYNCIFY_STACK_SIZE)
+        CFLAGS += -s ASYNCIFY -s ASYNCIFY_STACK_SIZE=$(BUILD_WEB_ASYNCIFY_STACK_SIZE)
     endif
 
     ifeq ($(BUILD_WEB_RESOURCES),TRUE)
@@ -95,18 +95,22 @@ FILES= \
 
 OBJECTS=$(FILES:.c=.o)
 
-APP=./build/$(APP_NAME)
+APP=./build/$(APP_NAME)$(EXT)
 
-.PHONY: run build bear_build clean
+.PHONY: run server build bear_build clean
 
 run: clean bear_build
 	$(APP)
+
+serve:
+	open http://localhost:8080/ENTER_HERE.html
+	cd build && python3 -m http.server 8080
 
 bear_build:
 	bear -- make build
 
 build: $(RAYLIB_PATH) $(OBJECTS)
-	$(CC) -o $(APP)$(EXT) $^ $(CFLAGS) $(INC) $(LIB)
+	$(CC) -o $(APP) $^ $(CFLAGS) $(INC) $(LIB)
 
 $(RAYLIB_PATH):
 	export PLATFORM=$(PLATFORM)
@@ -118,5 +122,5 @@ $(SRC)/%.o: $(SRC)/%.c
 clean:
 	-rm $(SRC)/*.o
 	-rm $(SRC)/*.d
-	-rm $(APP)
+	-rm build/*
 
