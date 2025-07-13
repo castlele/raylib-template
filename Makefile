@@ -76,7 +76,8 @@ INC=-I/usr/local/include/ -I/src/ -I./libs/include/
 
 ifeq ($(PLATFORM),PLATFORM_DESKTOP)
 	ifeq ($(PLATFORM_OS), OSX)
-		LIB=-L/usr/local/lib/ -lraylib -lm -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL
+		LIB=-L./libs/desktop/ -lraylib -lm -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL
+		RAYLIB_PATH=./libs/desktop/libraylib.a
 	else
 		# Linux here
 		LIB=-L./libs/desktop/ -lraylib -lm
@@ -102,7 +103,7 @@ APP=./build/$(APP_NAME)$(EXT)
 run: clean bear_build
 	$(APP)
 
-serve:
+serve: clean bear_build
 	open http://localhost:8080/ENTER_HERE.html
 	cd build && python3 -m http.server 8080
 
