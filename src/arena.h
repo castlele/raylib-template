@@ -3,6 +3,7 @@
 
 typedef struct Region Region;
 
+// TODO: Recreate with Tsoding's arena (store data[]): https://github.com/tsoding/arena
 struct Region {
     Region *next;
     void *data;

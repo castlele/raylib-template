@@ -15,20 +15,16 @@ typedef enum NavigationType {
 
 typedef void(ScreensNavigationAction)(ScreenType from, ScreenType to);
 
-void NavigateToScreen(
-    ScreenType from,
-    ScreenType to,
-    NavigationType type,
-    ScreensNavigationAction *onStart,
-    ScreensNavigationAction *onFinish
-);
+void NavigateToScreen(ScreenType from, ScreenType to, NavigationType type,
+                      ScreensNavigationAction *onStart,
+                      ScreensNavigationAction *onFinish);
 void UpdateTransition();
 void DrawTransition();
 BOOL IsInTransition();
 
 void InitMainScreen();
 void DeinitMainScreen();
-void UpdateMainScreen();
+void UpdateMainScreen(float dt);
 void DrawMainScreen();
 BOOL IsMainFinished();
 ScreenType MainNavigateToScreen();

@@ -15,7 +15,7 @@ static void Draw();
 
 static void InitScreen(ScreenType);
 static void DeinitScreen(ScreenType);
-static void UpdateScreen(ScreenType);
+static void UpdateScreen(ScreenType, float dt);
 static void DrawScreen(ScreenType);
 
 static void NavigationStarted(ScreenType from, ScreenType to);
@@ -50,7 +50,11 @@ static void UpdateDrawFrame() {
     Draw();
 }
 
-static void Update() { UpdateScreen(currentScreen); }
+static void Update() {
+    float dt = GetFrameTime();
+
+    UpdateScreen(currentScreen, dt);
+}
 
 static void Draw() {
     ClearBackground(RAYWHITE);
@@ -86,7 +90,7 @@ static void DeinitScreen(ScreenType screen) {
     }
 }
 
-static void UpdateScreen(ScreenType screen) {
+static void UpdateScreen(ScreenType screen, float dt) {
     if (IsInTransition()) {
         UpdateTransition();
         return;
@@ -96,7 +100,7 @@ static void UpdateScreen(ScreenType screen) {
     case NONE:
         break;
     case MAIN:
-        UpdateMainScreen();
+        UpdateMainScreen(dt);
 
         if (IsMainFinished()) {
             ScreenType to = MainNavigateToScreen();
