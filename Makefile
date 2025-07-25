@@ -104,7 +104,7 @@ run: clean bear_build
 	$(APP)
 
 serve: clean bear_build
-	open http://localhost:8080/ENTER_HERE.html
+	open http://localhost:8080/$(APP_NAME)$(EXT)
 	cd build && python3 -m http.server 8080
 
 bear_build:
